@@ -1,5 +1,6 @@
 import random
-
+import time
+from score import score_player, log_score, get_leaderboard
 
 def generate_random_number(min_val=100, max_val=200):
     """
@@ -13,8 +14,6 @@ def generate_random_number(min_val=100, max_val=200):
 
     return random_number
 
-
-
 def start_game():
 
     max_attempts = 5
@@ -23,7 +22,8 @@ def start_game():
     print("Welcome to the M&Ms Guessing Game!")
     target = generate_random_number()
     print(f"You have {max_attempts} guesses to find out how many M&Ms are in the jar.")
-
+    start_time = time.time()
+    
     while attempts < max_attempts:
         try:
             guess = int(input(f"Attempt {attempts + 1}/{max_attempts} - Enter your guess: "))
@@ -47,8 +47,24 @@ def start_game():
             print(f"You have {remaining} {'guess' if remaining == 1 else 'guesses'} left.")
         else:
             print(f"Sorry, you've used all your attempts. The correct number was {target}.")
-
-
+            
+        end_time = time.time()
+    return attempts, target, start_time, end_time
 
 if __name__ == "__main__":
-    start_game()
+    # Run the game
+    attempts, target, start_time, end_time = start_game()
+
+    # Score the player
+    score = score_player(attempts, target, start_time, end_time)
+    print(f"Your score: {score:.2f}")
+
+    # Log the score
+    player_name = input("Enter your name for the leaderboard: ")
+    log_score(player_name, score)
+
+    # Display top 5 leaderboard
+    print("\nLeaderboard (Top 5):")
+    for record in get_leaderboard(top_n=5):
+        ts = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(record['timestamp']))
+        print(f"{record['player']} - {record['score']:.2f} ({ts})")
